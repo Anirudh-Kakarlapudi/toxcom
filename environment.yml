@@ -1,0 +1,23 @@
+name: toxcom
+channels:
+  - conda-forge
+  - defaults
+  - anaconda
+dependencies:
+  # Core stack
+  - python>=3.6
+  - nltk
+  - numpy
+  - scipy
+  - matplotlib
+  - pytorch-gpu
+  - keras-gpu
+  - requests
+  - pip
+  - pip:
+    - regional
+    - transformers
+    - tensorboardX
+
+  # Testing
+  - pytest
