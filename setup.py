@@ -17,7 +17,7 @@ setup(
 	#		$ pip install toxcom
 	#
 	# It will live on PyPi at:
-	#		https://pypi.org/project/xwordgen/
+	#		https://pypi.org/project/toxcom/
 	name='toxcom',
 	# Versions should comply with PEP 440 : 
 	# 		https://www.python.org/dev/peps/pep-0440/
