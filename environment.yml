@@ -12,11 +12,13 @@ dependencies:
   - matplotlib
   - pytorch-gpu
   - keras-gpu
+  - scikit-learn
   - requests
   - pip
   - pip:
     - regional
     - transformers
+    - bert-tensorflow
     - tensorboardX
 
   # Testing
