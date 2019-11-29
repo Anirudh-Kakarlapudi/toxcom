@@ -10,6 +10,7 @@ dependencies:
   - numpy
   - scipy
   - matplotlib
+  - pandas
   - pytorch-gpu
   - keras-gpu
   - scikit-learn
