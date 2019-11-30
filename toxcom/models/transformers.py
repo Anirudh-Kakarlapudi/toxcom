@@ -9,6 +9,7 @@ References:
 [1] https://github.com/google-research/bert
 """
 
+import json
 import subprocess
 import zipfile
 import shutil
@@ -58,30 +59,30 @@ class InputFeatures:
 
     Attributes:
         input_ids ():
-
+            List of list of input ids for features.
         input_mask ():
-
+            List of list of input masks for features.
         segment_ids ():
-
-        label_ids ():
-
+            List of list of segment ids for features.
+        label_ids (list):
+            List of list of label ids for features.
         is_real_example ():
-
+            True, if real example, else, False.
     """
     def __init__(self, input_ids, input_mask, segment_ids, label_ids, is_real_example=True):
         """Constructs an InputFeature.
 
         Arguments:
             input_ids ():
-
+                List of list of input ids for features.
             input_mask ():
-
+                List of list of input masks for features.
             segment_ids ():
-
-            label_ids ():
-
+                List of list of segment ids for features.
+            label_ids (list):
+                List of list of label ids for features.
             is_real_example ():
-
+                True, if real example, else, False.
         """
         self.input_ids = input_ids
         self.input_mask = input_mask
@@ -120,46 +121,38 @@ class BertModel:
             Whether to lower case the input text. Should be True for
             uncased models and False for cased models.
     """
-    def __init__(self, bert_type=BERT_CASED, max_seq_length=400,
-                 train_batch_size=8, learning_rate=2e-5,
-                 num_train_epochs=3, warmup_proportion=0.1,
-                 save_checkpoints_steps=1000, save_summary_steps=500,
-                 do_lower_case=True):
+    def __init__(self, bert_type=BERT_CASED, **kwargs):
         """Initializes :class: ``BertModel``
 
         Arguments:
             bert_type (str)
                 Type of Bert-Model to use for finetuning.
-            max_seq_length (int):
-                The maximum total input sequence length after WordPiece
-                tokenization. Sequences longer than this will be truncated,
-                and sequences shorter than this will be padded.
-            train_batch_size (int):
-                Total batch size for training.
-            learning_rate (float):
-                The initial learning rate for Adam.
-            num_train_epochs (int):
-                Total number of training epochs to perform.
-            warmup_proportion (float):
-                Proportion of the number of training steps to include as
-                warmup steps.                
-            save_checkpoints_steps (int):
-                Number of checkpoints steps to save.
-            save_summary_steps (int):
-                Number of summary steps to save.
-            do_lower_case (bool):
-                Whether to lower case the input text. Should be True for
-                uncased models and False for cased models.
         """
+        # Default Parameters
+        params = {
+            'max_seq_length' = 400,
+            'train_batch_size' = 8,
+            'learning_rate' = 2e-5,
+            'num_train_epochs' = 3,
+            'warmup_proportion' = 0.1,
+            'save_checkpoints_steps' = 1000,
+            'save_summary_steps' = 500,
+            'do_lower_case' = True,
+        }
+
+        for param in params:
+            if param in kwargs:
+                params[param] = kwargs[param]
+
         # Model Parameters
-        self.max_seq_length = max_seq_length
-        self.train_batch_size = train_batch_size
-        self.learning_rate = learning_rate
-        self.num_train_epochs = num_train_epochs
-        self.warmup_proportion = warmup_proportion
-        self.save_checkpoints_steps = save_checkpoints_steps
-        self.save_summary_steps = save_summary_steps
-        self.do_lower_case = do_lower_case
+        self.max_seq_length = params['max_seq_length']
+        self.train_batch_size = params['train_batch_size']
+        self.learning_rate = params['learning_rate']
+        self.num_train_epochs = params['num_train_epochs']
+        self.warmup_proportion = params['warmup_proportion']
+        self.save_checkpoints_steps = params['save_checkpoints_steps']
+        self.save_summary_steps = params['save_summary_steps']
+        self.do_lower_case = params['do_lower_case']
         self.bert_model = 'cased_L-12_H-768_A-12'
         # Downloads and sets up bert's assets.
         self.setup_finetuning(bert_type)
@@ -348,7 +341,7 @@ class BertModel:
 
         Arguments:
             bert_config (dict):
-
+                Configuration for bert model
             num_labels (int):
                 Number of labels in the output layer.               
             num_train_steps (int):
@@ -360,7 +353,7 @@ class BertModel:
 
         Returns:
             model_fn:
-                
+                Tensorflow EstimatorSpec
         """
         def model_fn(features, labels, mode, params):
             """Builds a :class: tensorflow.estimator.EstimatorSpec for the
@@ -599,16 +592,8 @@ class BertModel:
         eval_input_fn = self.input_fn_builder(features=eval_features, is_training=False)
         result = estimator.evaluate(input_fn=eval_input_fn, steps=None)
         print("Evaluation Results: ", result)
+        print("Writing results to assets/results_bert.json")
 
-
-if __name__ == "__main__":
-    data_dir = storage.get('assets', 'data')
-    train_data_path = Path(data_dir) / 'train.csv'
-
-    df = pd.read_csv(train_data_path)
-
-    train_df = df[:int(0.9 * df.shape[0])]
-    eval_df = df[int(0.9 * df.shape[0]):]
-
-    model = BertModel()
-    model.execute(train_df, eval_df)
+        output_file = storage.get('assets', 'results_bert.json')
+        with open(output_file, 'w') as write_results:
+            json.dump(result, write_results)
