@@ -20,7 +20,7 @@ def read_data():
         train_df, eval_df (pandas.DataFrame, pandas.DataFrame)
             Train and Evaluation pandas DataFrames.
     """
-    data_dir = storage.get('assets', 'data')
+    data_dir = storage.get('toxcom', 'assets', 'data')
     train_data_path = Path(data_dir) / 'train.csv'
     test_data_path = Path(data_dir) / 'test.csv'
     test_labels_path = Path(data_dir) / 'test_labels.csv'
@@ -43,7 +43,7 @@ def run_bert(train_df, eval_df, **kwargs):
         eval_df (pandas.DataFrame)
             Pandas DataFrame for eval-set.
     """
-    model = BertModel(bert_type=BERT_CASED, **params)
+    model = BertModel(bert_type=BERT_CASED, **kwargs)
     model.execute(train_df, eval_df)
 
 
@@ -73,9 +73,9 @@ def main():
 
     args = parser.parse_args()
 
-    kwargs = []
-    for pair in args:
-        kwargs[pair[0]] = pair[1]
+    kwargs = {}
+    for arg in vars(args):
+        kwargs[arg] = getattr(args, arg)
 
     # Running experiments on :class: ``toxcom.models.BertModel``
     train_df, eval_df = read_data()

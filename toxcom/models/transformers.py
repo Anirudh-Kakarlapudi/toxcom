@@ -130,18 +130,18 @@ class BertModel:
         """
         # Default Parameters
         params = {
-            'max_seq_length' = 400,
-            'train_batch_size' = 8,
-            'learning_rate' = 2e-5,
-            'num_train_epochs' = 3,
-            'warmup_proportion' = 0.1,
-            'save_checkpoints_steps' = 1000,
-            'save_summary_steps' = 500,
-            'do_lower_case' = True,
+            'max_seq_length': 400,
+            'train_batch_size': 8,
+            'learning_rate': 2e-5,
+            'num_train_epochs': 3,
+            'warmup_proportion': 0.1,
+            'save_checkpoints_steps': 1000,
+            'save_summary_steps': 500,
+            'do_lower_case': True,
         }
 
         for param in params:
-            if param in kwargs:
+            if param in kwargs and kwargs[param]:
                 params[param] = kwargs[param]
 
         # Model Parameters
@@ -157,11 +157,11 @@ class BertModel:
         # Downloads and sets up bert's assets.
         self.setup_finetuning(bert_type)
         # Retrives absolute path of ``assets``
-        self.vocab_file = storage.get('assets', 'bert', self.bert_model, 'vocab.txt')
-        self.config = storage.get('assets', 'bert', self.bert_model, 'bert_config.json')
-        self.init_checkpoint = storage.get('assets', 'bert', self.bert_model, 'bert_model.ckpt')
+        self.vocab_file = storage.get('toxcom', 'assets', 'bert', self.bert_model, 'vocab.txt')
+        self.config = storage.get('toxcom', 'assets', 'bert', self.bert_model, 'bert_config.json')
+        self.init_checkpoint = storage.get('toxcom', 'assets', 'bert', self.bert_model, 'bert_model.ckpt')
         # Check if output directory exists. Else, create in ``assets`` directory.
-        self.output_dir = storage.get('assets', 'bert', 'outputs')
+        self.output_dir = storage.get('toxcom', 'assets', 'bert', 'outputs')
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
 
@@ -174,7 +174,7 @@ class BertModel:
             bert_type (str)
                 Type of Bert-Model to use for finetuning.
         """
-        bert_path = storage.get('assets', 'bert')
+        bert_path = storage.get('toxcom', 'assets', 'bert')
 
         if bert_path.exists() and bool(sorted(bert_path.rglob('*'))):
             pass
@@ -594,6 +594,6 @@ class BertModel:
         print("Evaluation Results: ", result)
         print("Writing results to assets/results_bert.json")
 
-        output_file = storage.get('assets', 'results_bert.json')
+        output_file = storage.get('toxcom', 'assets', 'results_bert.json')
         with open(output_file, 'w') as write_results:
             json.dump(result, write_results)
