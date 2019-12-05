@@ -20,12 +20,13 @@ def clean_text(comment, punct_num):
     """
     comment_lower = comment.lower()
     escape_remov = re.sub('\\n', ' ', comment_lower)
-
+    # Removing all non-ascii characters
+    non_ascii_remov = ''.join([st for st in escape_remov if ord(st) < 127])
+    
     if punct_num == 0:
-        return re.sub(r'[^\w\s]', r'', escape_remov)
+        return re.sub(r'[^\w\s]', r'', non_ascii_remov)
 
     elif punct_num == 1:
-        non_ascii_remov = ''.join([st for st in escape_remov if ord(st) < 127])
         brack_remov = re.sub(r'[\(\)\[\]\{\}]', r' ', non_ascii_remov)
         time_remov = re.sub(r'(\d\d\:)+(\d\d)*', r' ', brack_remov)
         colon_remov = re.sub(r'[\;\:]', r' ', time_remov)
